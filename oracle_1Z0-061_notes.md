@@ -1,6 +1,6 @@
 # Introduction
 
-I have compiled these notes whilst revising for the Oracle [1Z0-061](https://education.oracle.com/pls/web_prod-plq-dad/db_pages.getpage?page_id=5001&get_params=p_exam_id:1Z0-061) Exam - Oracle Database 12c: SQL Fundamentals. They should also be relevant to the [1Z0-051](https://education.oracle.com/pls/web_prod-plq-dad/db_pages.getpage?page_id=5001&get_params=p_exam_id:1Z0-051) - Oracle Database 11g: SQL Fundamentals exam.
+I have compiled these notes whilst revising for the Oracle [1Z0-061](https://education.oracle.com/pls/web_prod-plq-dad/db_pages.getpage?page_id=5001&get_params=p_exam_id:1Z0-061) Exam - Oracle Database 12c: SQL Fundamentals. They should also be relevant to the [1Z0-051](https://education.oracle.com/pls/web_prod-plq-dad/db_pages.getpage?page_id=5001&get_params=p_exam_id:1Z0-051) - Oracle Database 11g: SQL Fundamentals exam. Revision was most conducted using the excellent and highly recommended "[OCA Oracle Database 12c SQL Fundamentals I Exam Guide](http://www.amazon.com/Oracle-Database-Fundamentals-Guide-1Z0-061/dp/0071820280)" by Roopesh Ramklass.
 
 I have aimed to include include in these notes common "gotchas" and easy to forget functionality rather than documenting everything required for the exam. This can then be used as a quick refresher before walking into the exam.
 
