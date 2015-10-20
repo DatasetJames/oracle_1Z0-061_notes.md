@@ -5,3 +5,10 @@ I have compiled these notes whilst revising for the Oracle [1Z0-061](https://edu
 I have aimed to include include in these notes common "gotchas" and easy to forget functionality rather than documenting everything required for the exam. This can then be used as a quick refresher before walking into the exam.
 
 The content is broken up into sections with each heading mapping to the relevant [Oracle 1Z0-061 exam topics](https://education.oracle.com/pls/web_prod-plq-dad/db_pages.getpage?page_id=5001&get_params=p_exam_id:1Z0-061).
+
+# Retrieving Data using the SQL SELECT Statement
+
+* Concatenation with NULL is OK
+    'Mike||NULL||'Leonard' = 'MikeLeonard'
+* Expressions with NULL always result in NULL
+*   1 + 2 * NULL + 3 = NULL
