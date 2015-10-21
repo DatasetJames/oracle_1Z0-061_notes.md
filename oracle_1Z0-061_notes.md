@@ -21,6 +21,7 @@ The content is broken up into sections with each heading mapping to the relevant
   'Mike||NULL||'Leonard' = 'MikeLeonard'
   ```
 * Expressions with NULL always result in NULL.
+  
   ```sql
   1 + 2 * NULL + 3 = NULL
   ```
@@ -33,35 +34,42 @@ The content is broken up into sections with each heading mapping to the relevant
 
 * `TRIM` by default trims whitespace.
 * To `TRIM` other characters use the following syntax.
+  
   ```sql
   TRIM('#' from '#MYSTRING#')
   ```
 * `LEADING`, `TRAILING` or `BOTH` can be specified in `TRIM` to control where the characters are trimmed from.
+  
   ```sql
   TRIM(TRAILING '#' from '#MYSTRING#')
   TRIM(LEADING '#' from '#MYSTRING#')
   TRIM(BOTH '#' from '#MYSTRING#') -- This is the default.
   ```
 * `MONTHS_BETWEEN` works backwards, that is a positive number is returned when the first argument is greater than the second.
+  
   ```sql
   MONTHS_BETWEEN('01-JAN-15', '01-FEB-15') = -1
   MONTHS_BETWEEN('01-FEB-15', '01-JAN-15') = 1
   ```
 * If `INSTR` does not find the target string 0 is returned.
+  
   ```sql
   INSTR('a', 'b') = 0
   ```
 * You can `ROUND` to nearest whole numbers (least significant digit is 0).
+  
   ```sql
   ROUND(1584.73, -3) = 2000
   ROUND(11, -1) = 10
   ```
 * `LPAD`/`RPAD` take an argument specifying the resultant length **not** how much to append:.
+  
   ```sql
   LPAD('A', 4, '.') = '...A'
   RPAD('A', 4, '.') = 'A...'
   ```
 * `NULLIF` returns the first argument if the two arguments dont match else its returns `NULL`.
+  
   ```sql
   NULLIF('a', 'a') = NULL
   NULLIF('a', 'b') = 'a'
@@ -70,6 +78,7 @@ The content is broken up into sections with each heading mapping to the relevant
 # Using Conversion Functions and Conditional Expressions
 
 * Format masks behave differently when operating on numbers or characters.
+  
   ```sql
   TO_NUMBER(1234.49, 999999.9) -- Raises an exception ORA_01722: invalid number
   TO_CHAR(1234.49, '999999.9') = 1234.5 -- Note the rounding
@@ -91,6 +100,7 @@ The content is broken up into sections with each heading mapping to the relevant
 * `NATURAL JOIN` joins tables using columns with identical names.
 * A `NATURAL JOIN` becomes a cartesian (cross) join when no matching column names are found.
 * `NATURAL JOIN` syntax:
+  
   ```sql
   SELECT *
   FROM emp
@@ -98,30 +108,35 @@ The content is broken up into sections with each heading mapping to the relevant
   ```
 * Oracle join syntax:
     * INNER JOIN:
+      
       ```sql
       SELECT *
       FROM emp, dept
       WHERE emp.deptno = dept.deptno
       ```
     * LEFT OUTER JOIN:
+     
       ```sql
       SELECT *
       FROM emp, dept
       WHERE emp.deptno = dept.deptno (+)
       ```
     * RIGHT OUTER JOIN:
+      
       ```sql
       SELECT *
       FROM emp, dept
       WHERE emp.deptno (+) = dept.deptno
       ```
 * `USING` syntax
+  
   ```sql
   SELECT *
   FROM emp
   JOIN dept USING(deptno)
   ```
 * Queries with the `USING` syntax cannot alias the column(s) used in the `USING(...)` clause.
+  
   ```sql
   SELECT d.deptno
   FROM emp e
@@ -171,6 +186,7 @@ The content is broken up into sections with each heading mapping to the relevant
   * must be upper case (even if entered lower case they will be converted to upper)''
   * may include additional characters and be lower case if enclosed with quotes ("). However, once this is done the object must always be referred to using quotes.
 * Objects names are case sensitive.
+ 
   ```sql
   CREATE TABLE test1 (
     ...
@@ -208,6 +224,7 @@ The content is broken up into sections with each heading mapping to the relevant
   * `ROWID` A value coded in base64 that is the pointer to the location of a row in a table. Encrypted within it is the exact physical address. `ROWID` is an Oracle proprietary data type, not visible unless specifically selected.
 * `VARCHAR2`, `NUMBER` and `DATE` required a detailed understanding.
 * `NUMBER` with a negative scale will round:
+  
   ```sql
   CREATE TABLE numtest (
     id NUMBER(12, -4)
@@ -233,31 +250,37 @@ The content is broken up into sections with each heading mapping to the relevant
 * `CREATE TABLE ... AS SELECT ...` copies a tables structure including `NOT NULL` and `CHECK` constraints. `PRIMARY KEY`, `UNIQUE` and `FOREIGN KEY`s are not copied.
 * Various `ALTER TABLE` options
   * Adding columns
+    
     ```sql
     ALTER TABLE emp
     ADD (job_id NUMBER);
     ```
   * Adding columns
+    
     ```sql
     ALTER TABLE emp
     MODIFY (comm NUMBER(4,2) DEFAULT 0.05);
     ```
   * Dropping columns
+    
     ```sql
     ALTER TABLE emp
     DROP COLUMN comm;
     ```
   * Marking columns as unused
+    
     ```sql
     ALTER TABLE emp
     SET UNUSED COLUMN job_id;
     ```
   * Renaming columns
+    
     ```sql
     ALTER TABLE emp
     RENAME COLUMN hiredate TO recruited
     ```
   * Marking the table as read-only
+    
     ```sql
     ALTER TABLE emp
     READ ONLY;
