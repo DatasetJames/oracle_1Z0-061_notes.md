@@ -16,9 +16,9 @@ The content is broken up into sections with each heading mapping to the relevant
 # Retrieving Data using the SQL SELECT Statement
 
 * Concatenation with NULL is OK.
-  ```sql
+    ```sql
   'Mike||NULL||'Leonard' = 'MikeLeonard'
-  ```
+    ```
 * Expressions with NULL always result in NULL.
   ```sql
   1 + 2 * NULL + 3 = NULL
