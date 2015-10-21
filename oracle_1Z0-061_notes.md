@@ -16,14 +16,32 @@ The content is broken up into sections with each heading mapping to the relevant
 # Retrieving Data using the SQL SELECT Statement
 
 * Concatenation with NULL is OK.
-  
+
   ```sql
   'Mike||NULL||'Leonard' = 'MikeLeonard'
   ```
 * Expressions with NULL always result in NULL.
-  
+
   ```sql
   1 + 2 * NULL + 3 = NULL
+  ```
+* Operator precedences are shown in the following list, from highest precedence to the lowest. Operators that are shown together on a line have the same precedence.
+
+  ```
+  INTERVAL
+  !
+  - (unary minus), ~ (unary bit inversion)
+  ^
+  *, /, DIV, %, MOD
+  -, +
+  &
+  |
+  = (comparison), <=>, >=, >, <=, <, <>, !=, IS, LIKE, REGEXP, IN
+  BETWEEN, CASE, WHEN, THEN, ELSE
+  NOT
+  AND, &&
+  XOR
+  OR, ||
   ```
 
 # Restricting and Sorting Data.
@@ -34,73 +52,168 @@ The content is broken up into sections with each heading mapping to the relevant
 
 * `TRIM` by default trims whitespace.
 * To `TRIM` other characters use the following syntax.
-  
+
   ```sql
   TRIM('#' from '#MYSTRING#')
   ```
 * `LEADING`, `TRAILING` or `BOTH` can be specified in `TRIM` to control where the characters are trimmed from.
-  
+
   ```sql
   TRIM(TRAILING '#' from '#MYSTRING#')
   TRIM(LEADING '#' from '#MYSTRING#')
   TRIM(BOTH '#' from '#MYSTRING#') -- This is the default.
   ```
 * `MONTHS_BETWEEN` works backwards, that is a positive number is returned when the first argument is greater than the second.
-  
+
   ```sql
   MONTHS_BETWEEN('01-JAN-15', '01-FEB-15') = -1
   MONTHS_BETWEEN('01-FEB-15', '01-JAN-15') = 1
   ```
 * If `INSTR` does not find the target string 0 is returned.
-  
+
   ```sql
   INSTR('a', 'b') = 0
   ```
 * You can `ROUND` to nearest whole numbers (least significant digit is 0).
-  
+
   ```sql
   ROUND(1584.73, -3) = 2000
   ROUND(11, -1) = 10
   ```
 * `LPAD`/`RPAD` take an argument specifying the resultant length **not** how much to append:.
-  
+
   ```sql
   LPAD('A', 4, '.') = '...A'
   RPAD('A', 4, '.') = 'A...'
   ```
 * `NULLIF` returns the first argument if the two arguments dont match else its returns `NULL`.
-  
+
   ```sql
   NULLIF('a', 'a') = NULL
   NULLIF('a', 'b') = 'a'
   ```
+* `TRUNC` of a `NUMBER` works like rounding down.
+
+  ```sql
+  TRUNC(1256.56, 1) = 1256.5
+  ROUND(1256.56, 1) = 1256.6
+
+  TRUNC(1256.56, -2) = 1200
+  ROUND(1256.56, -2) = 1300
+  ```
+* Single row numeric functions **always** return a numeric value. These are the only group of functions that do this.
 
 # Using Conversion Functions and Conditional Expressions
 
 * Format masks behave differently when operating on numbers or characters.
-  
+
   ```sql
   TO_NUMBER(1234.49, 999999.9) -- Raises an exception ORA_01722: invalid number
   TO_CHAR(1234.49, '999999.9') = 1234.5 -- Note the rounding
   ```
 * The default Oracle data format mask is `DD-MON-RR`.
+* ,/. and D/G style number separators cannot be mixed in the same format mask.
 
-## TODO: FORMAT MASKS!!!!
+## Format masks
+
+### Numeric Format masks
+
+| Format Element  | Description                                                | Format       | Number  | Character Result                             |
+|-----------------|------------------------------------------------------------|--------------|---------|----------------------------------------------|
+| 9               | Numeric width                                              | 9999         | 12      | 12                                           |
+| 0               | Displays leading zeros                                     | 09999        | 0012    | 00012                                        |
+| .               | Position of decimal point                                  | 09999.999    | 030.40  | 00030.400                                    |
+| D               | Decimal separator position (period is default)             | 09999D999    | 030.40  | 00030.400                                    |
+| ,               | Position of commas symbol                                  | 09999,999    | 03040   | 00003,040                                    |
+| G               | Group separator position (comma is default)                | 09999G999    | 03040   | 00003,040                                    |
+| $               | Dollar sign                                                | $099999      | 03040   | $003040                                      |
+| L               | Local currency                                             | L099999      | 03040   | GBP003040 if nls_currency is set to GBP      |
+| MI              | Position of minus sign for negatives                       | 99999MI      | -3040   | 3040-                                        |
+| PR              | Wrap negatives in parentheses                              | 99999PR      | -3040   | <3040>                                       |
+| EEEE            | Scientific notation                                        | 99.99999EEEE | 121.976 | 1.21976E+02                                  |
+| U               | nls_dual_currency                                          | U099999      | 03040   | CAD003040 if nls_dual_currency is set to CAD |
+| V               | Multiplies by 10n times (n is the number of nines after V) | 9999V99      | 3040    | 304000                                       |
+| S               | + or - sign is prefixed                                    | S999999      | 3040    | +3040                                        |
+
+### Date Format Masks
+
+| Format Element | Description                              | Result                |
+|----------------|------------------------------------------|-----------------------|
+| Y              | Last digit of year                       | 5                     |
+| YY             | Last two digits of year                  | 75                    |
+| YYY            | Last three digits of year                | 975                   |
+| YYYY           | Four-digit year                          | 1975                  |
+| RR             | Two-digit year                           | 75                    |
+| YEAR           | Case-sensitive English spelling of year  | NINETEEN SEVENTY-FIVE |
+| MM             | Two-digit month                          | 06                    |
+| MON            | Three-letter abbreviation of month       | JUN                   |
+| MONTH          | Case-sensitive English spelling of month | JUNE                  |
+| D              | Day of week                              | 2                     |
+| DD             | Two-digit day of month                   | 02                    |
+| DDD            | Day of the year                          | 153                   |
+| DY             | Three-letter abbreviation of day         | MON                   |
+| DAY            | Case-senstitive English spelling of day  | MONDAY                |
+
+### Less Commonly Used Date Format Masks
+
+| Format Element               | Description                                               | Result                      |
+|------------------------------|-----------------------------------------------------------|-----------------------------|
+| W                            | Week of month                                             | 4                           |
+| WW                           | Week of year                                              | 39                          |
+| Q                            | Quarter of year                                           | 3                           |
+| CC                           | Century                                                   | 10                          |
+| S preceding CC, YYYY or YEAR | If date is BC, a minus sign is prefixed to result         | -10, -1000 or -ONE THOUSAND |
+| IYYY,IYY,IY,I                | ISO dates of four, three, two and one digit, respectively | 1000, 000, 00, 0            |
+| BC, AD, B.C. and A.D.        | BC or AD and periodspaced B.C. or A.D.                    | BC                          |
+| J                            | Julian day - days since 31 December 4713 BC               | 1356075                     |
+| IW                           | ISO standard week (1 to 53)                               | 39                          |
+| RM                           | Roman numeral month                                       | IX                          |
+
+### Date Form Masks for Time Components
+
+| Format Element        | Description                            | Result     |
+|-----------------------|----------------------------------------|------------|
+| AM, PM, A.M. and P.M. | Meridian indicators                    | PM         |
+| HH, HH12 and HH24     | Hour of day, 1-2 hours, and 0-23 hours | 09, 09, 21 |
+| MI                    | Minute (0-59)                          | 35         |
+| SS                    | Second (0-59)                          | 13         |
+| SSSSS                 | Seconds past midnight (0-86399)        | 77713      |
+
+### Miscellaneous Date Format Masks
+
+| Format Element          | Description                                          | Result                            |
+|-------------------------|------------------------------------------------------|-----------------------------------|
+| -/.,?#!                 | Punctuation marks: 'MM.YY'                           | 09.08                             |
+| "any character literal" | Character literals: '"Week" W "of" Month'            | Week 2 of September               |
+| TH                      | Positional or ordinal text: 'DDth "of" Month'        | 12th of September                 |
+| SP                      | Spelled out number: 'MmSP Month Yyyysp'              | Nine September Two Thousand Eight |
+| THSP or SPTH            | Spelled out positional or ordinal number: 'hh24SpTh' | Fourteenth                        |
 
 
 # Reporting Aggregated Data Using the Group Functions
 
 * `COUNT(ALL *)` is default and the same as `COUNT(*)`.
 * Group functions ignore NULLs.
+* As group functions ignore NULLs beware that `COUNT(DISTINCT colname)` will not count any rows with NULL in `colname`.
 * Group functions can only be nested two levels deep.
 * `HAVING` can come before or after the `GROUP BY`.
+* `GROUP BY` and `DISTINCT` can, in some cases, be used to create the same results. The following are equivialent.
+
+  ```sql
+  SELECT comm
+  FROM scott.emp
+  GROUP BY comm;
+
+  SELECT DISTINCT comm
+  FROM scott.emp;
+  ```
 
 # Displaying Data From Multiple Tables Using Joins
 
 * `NATURAL JOIN` joins tables using columns with identical names.
 * A `NATURAL JOIN` becomes a cartesian (cross) join when no matching column names are found.
 * `NATURAL JOIN` syntax:
-  
+
   ```sql
   SELECT *
   FROM emp
@@ -108,35 +221,35 @@ The content is broken up into sections with each heading mapping to the relevant
   ```
 * Oracle join syntax:
     * INNER JOIN:
-      
+
       ```sql
       SELECT *
       FROM emp, dept
       WHERE emp.deptno = dept.deptno
       ```
     * LEFT OUTER JOIN:
-     
+
       ```sql
       SELECT *
       FROM emp, dept
       WHERE emp.deptno = dept.deptno (+)
       ```
     * RIGHT OUTER JOIN:
-      
+
       ```sql
       SELECT *
       FROM emp, dept
       WHERE emp.deptno (+) = dept.deptno
       ```
 * `USING` syntax
-  
+
   ```sql
   SELECT *
   FROM emp
   JOIN dept USING(deptno)
   ```
 * Queries with the `USING` syntax cannot alias the column(s) used in the `USING(...)` clause.
-  
+
   ```sql
   SELECT d.deptno
   FROM emp e
@@ -176,6 +289,7 @@ The content is broken up into sections with each heading mapping to the relevant
 * `COMMIT` is fast, `ROLLBACK` is slow (can possibly take longer to ROLLBACK that it originally did to do the work).
 * Create a `SAVEPOINT` with `SAVEPOINT name;`.
 * `ROLLBACK` a `SAVEPOINT` with `ROLLBACK TO SAVEPOINT name;`.
+* You cannot `ROLLBACK` to a non-existant `SAVEPOINT`. One that either has not been created or has been ended via a `ROLLBACK` or `COMMIT`.
 
 # Introduction to Data Definition Language
 
@@ -186,7 +300,7 @@ The content is broken up into sections with each heading mapping to the relevant
   * must be upper case (even if entered lower case they will be converted to upper)''
   * may include additional characters and be lower case if enclosed with quotes ("). However, once this is done the object must always be referred to using quotes.
 * Objects names are case sensitive.
- 
+
   ```sql
   CREATE TABLE test1 (
     ...
@@ -210,6 +324,7 @@ The content is broken up into sections with each heading mapping to the relevant
   * `VARCHAR2` Variable-length character data from 1 byte to 4000 bytes if `MAX_STRING_SIZE=STANDARD` or 32767 bytes in `MAX_STRING_SIZE=EXTENDED`. The database is stored in the database character set.
   * `CHAR` Fixed-length character data, from 1 byte to 2000 bytes, in the database character set. If the data is not the length of the column then it will be padded with spaces.
   * `NUMBER` Numeric data, for which you can specify precision and scale. The precision can range from 1 to 38, the scale can range from -84 to 127.
+  * `FLOAT` A subtype of the `NUMBER` datatype having a precision defined. A `FLOAT` value is represented internally as `NUMBER`. The precision can range from 1 to 126 binary digits. A `FLOAT` vlue requires from 1 to 22 bytes.
   * `DATE` The is either the length zero, if the column is empty or 7 bytes. All `DATE` data includes century, year, month, day, hour, minute and second.
   * `TIMESTAMP` This is length zero if the column is empty, or up to 11 bytes, depending on the precision specified. Similar to `DATE` but with precision of up to 9 decimal places for the seconds, 6 places by default.
   * `TIMESTAMP WITH TIMEZONE` Like `TIMESTAMP` but the data is stored with a record kept of the time zone to which it refers. The length may be up to 13 bytes, depending on precision. This data type lets Oracle determine the difference between two time by normalizing them to UTA, even if the times are for different time zones.
@@ -223,9 +338,11 @@ The content is broken up into sections with each heading mapping to the relevant
   * `BLOB` Like `CLOB` but binary data that will not undergo character set conversion by Oracle Net.
   * `BFILE` A locator pointing to a file stored on the operating system of the database server. The size of the files is limited to 4gb.
   * `ROWID` A value coded in base64 that is the pointer to the location of a row in a table. Encrypted within it is the exact physical address. `ROWID` is an Oracle proprietary data type, not visible unless specifically selected.
+  * `BINARY_FLOAT` A 32-bit, single precision floating-point number. Each `BINARY_FLOAT` value requires 5 bytes, including a length byte.
+  * `BINARY_DOUBLE` A 64-bit, double precision floating-point number datatype. Each `BINARY_DOUBLE` value requires 9 bytes, including a length byte.
 * `VARCHAR2`, `NUMBER` and `DATE` required a detailed understanding.
 * `NUMBER` with a negative scale will round:
-  
+
   ```sql
   CREATE TABLE numtest (
     id NUMBER(12, -4)
@@ -248,40 +365,45 @@ The content is broken up into sections with each heading mapping to the relevant
   ```
 
 ## Create a simple table
+* The syntax for columns in a `CREATE TABLE` statement is:
+
+  ```sql
+    column_name DATA_TYPE [NOT NULL] [UNIQUE | PRIMARY KEY]
+  ```
 * `CREATE TABLE ... AS SELECT ...` copies a tables structure including `NOT NULL` and `CHECK` constraints. `PRIMARY KEY`, `UNIQUE` and `FOREIGN KEY`s are not copied.
 * Various `ALTER TABLE` options
   * Adding columns
-    
+
     ```sql
     ALTER TABLE emp
     ADD (job_id NUMBER);
     ```
   * Adding columns
-    
+
     ```sql
     ALTER TABLE emp
     MODIFY (comm NUMBER(4,2) DEFAULT 0.05);
     ```
   * Dropping columns
-    
+
     ```sql
     ALTER TABLE emp
     DROP COLUMN comm;
     ```
   * Marking columns as unused
-    
+
     ```sql
     ALTER TABLE emp
     SET UNUSED COLUMN job_id;
     ```
   * Renaming columns
-    
+
     ```sql
     ALTER TABLE emp
     RENAME COLUMN hiredate TO recruited
     ```
   * Marking the table as read-only
-    
+
     ```sql
     ALTER TABLE emp
     READ ONLY;
@@ -294,3 +416,12 @@ The content is broken up into sections with each heading mapping to the relevant
 * `DELETE`ing rows in a `FOREIGN KEY` referenced table is not allowed unless the constraint is specified with one of the following:
   * `ON DELETE CASCADE` Also delete the rows referencing the row to be deleted.
   * `ON DELETE SET NULL` Find any rows referencing the row to be deleted and make `NULL` the columns in the `FOREIGN KEY`.
+
+
+# Exams Gotchas
+
+The following notes are not strictly Oracle Database related but should be remembered when taking the exam.
+
+* When provided with details of two or more tables (such as via a `DESC`) be sure to examine the column names carefully and check for any columns in bother tables with the same name, especially if a `NATURAL JOIN` us used anywhere in the questions. Be 100% certain of the columns the `NATURAL JOIN` will be operating on.
+* When dealing with data conversions be sure to consider the `NLS_DATE_FORMAT` setting.
+* Ensure that the datatypes are correct in functions. For example, the data types of all arguments to `COALESCE` must be the same. Do not rely on implicit casting here either.
