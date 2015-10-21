@@ -203,6 +203,7 @@ The content is broken up into sections with each heading mapping to the relevant
 * DDL will fail if there is another active transaction against the object being altered.
 * It is impossible to `DROP` a table if it is the subject of a `FOREIGN KEY` from another table.
 * Oracle 12c includes a recycle bin that is enabled by default. Dropped objects can be recovered from here as long as they haven't been dropped with the `PURGE` option.
+* You cannot `TRUNCATE` a table that has foreign key values pointing to it.
 
 ## Describe the data types that are available for columns
 * The following datatypes are important to know for the exam:
